@@ -72,8 +72,11 @@ jobs:
             id: findandreplace
             with:
               source: ${{ github.event.inputs.owner }}
-              find: 'user/default'
-              replace: ''             
+              find: 'user:default/'
+              replace: '' 
+          - name: Print the replaced email
+            run: echo "The email is ${{ steps.findandreplace.outputs.value }}" # Example of how to access output email
+              
     get_user_email:
         runs-on: ubuntu-latest
         name: A job to get a users email
@@ -86,7 +89,7 @@ jobs:
 
           # Use the output from the `test` step
           - name: Print the found email
-            run: echo "The email is ${{ steps.test.outputs.email }} - ${{ toJson(github) }}" # Example of how to access output email
+            run: echo "The email is ${{ steps.test.outputs.email }}" # Example of how to access output email
 
         # TODO: Based on input above, add correct payload and call the Terraform API
 
