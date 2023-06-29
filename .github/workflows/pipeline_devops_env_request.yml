@@ -63,38 +63,19 @@ jobs:
             id: terraform
             run: |
                 echo 'Sending payload...'  
-    find-and-replace-job:
-        runs-on: ubuntu-latest
-        name: 'Find and replace on a string'
-        outputs:
-            value: ${{ steps.findandreplace.outputs.value }}
-        steps:
-          - name: Run find-and-replace to remove refs/heads/
-            uses: mad9000/actions-find-and-replace-string@3
-            id: findandreplace
-            with:
-              source: ${{ github.event.inputs.owner }}
-              find: 'user:default/'
-              replace: '' 
-          - name: Print the replaced email
-            run: echo "The username is ${{ steps.findandreplace.outputs.value }}" # Example of how to access output email
-              
     get_user_email:
         runs-on: ubuntu-latest
         name: A job to get a users email
         steps:
-          - name: Print the found username
-            run: echo "The username is   ${{ steps.findandreplace.outputs.value }}" # Example of how to access output email
           - name: get email
             id: test
             uses: evvanErb/get-github-email-by-username-action@v1.25
             with:
-              github-username: '${{ steps.findandreplace.outputs.value }}' # This is the input username
+              github-username: ${{ github.triggering_actor }}
 
           # Use the output from the `test` step
           - name: Print the found email
-            run: echo "The email is ${{ steps.test.outputs.email }} - ${{ steps.findandreplace.outputs.value }}" # Example of how to access output email
-
+            run: echo "The email is ${{ steps.test.outputs.email }}"
         # TODO: Based on input above, add correct payload and call the Terraform API
 
     # email:
