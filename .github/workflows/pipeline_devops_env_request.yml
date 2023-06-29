@@ -66,6 +66,8 @@ jobs:
     find-and-replace-job:
         runs-on: ubuntu-latest
         name: 'Find and replace on a string'
+        outputs:
+            value: ${{ steps.findandreplace.outputs.value }}
         steps:
           - name: Run find-and-replace to remove refs/heads/
             uses: mad9000/actions-find-and-replace-string@3
