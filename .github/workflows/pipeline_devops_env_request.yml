@@ -63,7 +63,19 @@ jobs:
             id: terraform
             run: |
                 echo 'Sending payload...'  
-                
+    find-and-replace-job:
+        runs-on: ubuntu-latest
+        name: 'Find and replace on a string'
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v2
+          - name: Run find-and-replace to remove refs/heads/
+            uses: mad9000/actions-find-and-replace-string@3
+            id: findandreplace
+            with:
+              source: ${{ github.event.inputs.owner }}
+              find: 'user/default'
+              replace: ''             
     get_user_email:
         runs-on: ubuntu-latest
         name: A job to get a users email
@@ -72,7 +84,7 @@ jobs:
             id: test
             uses: evvanErb/get-github-email-by-username-action@v1.25
             with:
-              github-username: '${{ github.event.inputs.owner }}' # This is the input username
+              github-username: '${{ steps.findandreplace.outputs.value }}' # This is the input username
 
           # Use the output from the `test` step
           - name: Print the found email
