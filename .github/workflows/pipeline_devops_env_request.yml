@@ -81,6 +81,8 @@ jobs:
         runs-on: ubuntu-latest
         name: A job to get a users email
         steps:
+          - name: Print the found username
+            run: echo "The username is   ${{ steps.findandreplace.outputs.value }}" # Example of how to access output email
           - name: get email
             id: test
             uses: evvanErb/get-github-email-by-username-action@v1.25
