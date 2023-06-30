@@ -20,12 +20,12 @@ jobs:
           shell: bash
           id: replace-username
           run: |
-              echo 'replacing username'
+              echo "username=ilkaykisayol" >> "$GITHUB_OUTPUT"
         - name: Check params
           shell: bash
           id: set-variable
           run: |
-              echo "owner=ilkaykisayol@gmail.com" >> "$GITHUB_OUTPUT"
+              echo "owner=${{ steps.replace-username.outputs.username }}" >> "$GITHUB_OUTPUT"
           # TODO: verify email, should be a valid email address using Regecx and possibly only be within AZ org.
           # Also, does this need to be a specific set of users?
   get_user_email:
