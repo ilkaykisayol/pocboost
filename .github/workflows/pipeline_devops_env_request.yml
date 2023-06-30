@@ -61,18 +61,15 @@ jobs:
     name: A job to get a users email
     needs: params
     steps:
-      - name: Print the found email
-        run: echo "The email is ${{ needs.params.outputs.owner }}"
-      - name: get email
-        id: test
+      - name: find email
+        id: find-email
         uses: evvanErb/get-github-email-by-username-action@v1.25
         with:
           github-username: ${{ needs.params.outputs.owner }}
 
-      # Use the output from the `test` step
+      # Use the output from the `find-email` step
       - name: Print the found email
-        run: echo "The email is ${{ steps.test.outputs.email }}"
-        # TODO: Based on input above, add correct payload and call the Terraform API
+        run: echo "The email is ${{ steps.find-email.outputs.email }}"
 
     # email:
     #     name: Send mail
