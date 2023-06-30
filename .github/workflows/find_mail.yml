@@ -8,6 +8,14 @@ on:
           type: string
 
 jobs:
+  tweet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bluwy/substitute-string-action@v1
+        id: sub
+        with:
+          _input-text: './.github/tweet_template.txt'
+          'user:default/': ''
   get_user_email:
     runs-on: ubuntu-latest
     name: A job to get a users email
@@ -16,7 +24,7 @@ jobs:
         id: test
         uses: evvanErb/get-github-email-by-username-action@v1.25
         with:
-          github-username: ${{ github.triggering_actor }}
+          github-username: ${{ inputs.username }}
 
       # Use the output from the `test` step
       - name: Print the found email
