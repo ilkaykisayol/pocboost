@@ -31,6 +31,7 @@ jobs:
   get_user_email:
     runs-on: ubuntu-latest
     name: A job to get a users email
+    needs: params
     steps:
       - name: Print the found email
         run: echo "The email is ${{ needs.params.outputs.owner }}"
