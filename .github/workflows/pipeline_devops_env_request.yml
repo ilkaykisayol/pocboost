@@ -6,6 +6,10 @@ name: Request - Environment - DevOps Sandbox
 on:
     workflow_dispatch: # on demand
         inputs:
+            owner:
+                description: 'Email address of the environment owner'
+                required: true
+                type: string
             version:
                 description: 'Choose application and environment version'
                 required: true
@@ -34,6 +38,7 @@ jobs:
         name: 'Set parameters'
         runs-on: ubuntu-latest
         outputs:
+            owner: ${{ steps.set-variable.outputs.owner }}
             version: ${{ steps.set-variable.outputs.version }}
             retention: ${{ steps.set-variable.outputs.retention }}
         steps:
