@@ -21,9 +21,8 @@ jobs:
           id: replace-username
           run: |
               backstageUserName=${{ inputs.owner }}
-              replaceValue="user:/default/"
-              echo "${backstageUserName//$replaceValue}"    
-              echo "username=${{ inputs.owner }}" >> "$GITHUB_OUTPUT"
+              replaceValue="user:/default/"   
+              echo "username="${backstageUserName//$replaceValue}"" >> "$GITHUB_OUTPUT"
         - name: Check params
           shell: bash
           id: set-variable
