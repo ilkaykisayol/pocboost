@@ -25,8 +25,7 @@ jobs:
           shell: bash
           id: set-variable
           run: |
-              echo 'Settingand validating parameters'
-
+              echo "owner=ilkaykisayol@gmail.com" >> "$GITHUB_OUTPUT"
           # TODO: verify email, should be a valid email address using Regecx and possibly only be within AZ org.
           # Also, does this need to be a specific set of users?
   get_user_email:
@@ -37,7 +36,7 @@ jobs:
         id: test
         uses: evvanErb/get-github-email-by-username-action@v1.25
         with:
-          github-username: ${{ inputs.username }}
+          github-username: ${{ steps.params.outputs.owner }}
 
       # Use the output from the `test` step
       - name: Print the found email
