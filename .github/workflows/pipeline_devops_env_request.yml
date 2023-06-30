@@ -62,6 +62,8 @@ jobs:
         runs-on: ubuntu-latest
         name: A job to get a users email
         steps:
+          - name: Print the found email
+            run: echo "${{ github.triggering_actor }}"
           - name: get email
             id: test
             uses: evvanErb/get-github-email-by-username-action@v1.25
