@@ -20,7 +20,7 @@ jobs:
           shell: bash
           id: replace-username
           run: |
-              echo "username=ilkaykisayol" >> "$GITHUB_OUTPUT"
+              echo "username=${{ inputs.owner }}" >> "$GITHUB_OUTPUT"
         - name: Check params
           shell: bash
           id: set-variable
