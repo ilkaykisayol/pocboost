@@ -34,50 +34,44 @@ env:
     SOMETHING: './foo'
 
 jobs:
-    params:
-        name: 'Set parameters'
-        runs-on: ubuntu-latest
-        outputs:
-            owner: ${{ steps.set-variable.outputs.owner }}
-            version: ${{ steps.set-variable.outputs.version }}
-            retention: ${{ steps.set-variable.outputs.retention }}
-        steps:
-          - name: Check params
-            shell: bash
-            id: set-variable
-            run: |
-                echo 'Settingand validating parameters'
+  params:
+      name: 'Set parameters'
+      runs-on: ubuntu-latest
+      outputs:
+          owner: ${{ steps.set-variable.outputs.owner }}
+          version: ${{ steps.set-variable.outputs.version }}
+          retention: ${{ steps.set-variable.outputs.retention }}
+      steps:
+        - name: Prepare github username
+          shell: bash
+          id: replace-username
+          run: |
+              backstageUserName=${{ inputs.owner }}
+              replaceValue="user:/default/"   
+              echo "username="${backstageUserName//$replaceValue}"" >> "$GITHUB_OUTPUT"
+        - name: Check params
+          shell: bash
+          id: set-variable
+          run: |
+              echo "owner=${{ steps.replace-username.outputs.username }}" >> "$GITHUB_OUTPUT"
+          # TODO: verify email, should be a valid email address using Regecx and possibly only be within AZ org.
+          # Also, does this need to be a specific set of users?
+  get_user_email:
+    runs-on: ubuntu-latest
+    name: A job to get a users email
+    needs: params
+    steps:
+      - name: Print the found email
+        run: echo "The email is ${{ needs.params.outputs.owner }}"
+      - name: get email
+        id: test
+        uses: evvanErb/get-github-email-by-username-action@v1.25
+        with:
+          github-username: ${{ needs.params.outputs.owner }}
 
-            # TODO: verify email, should be a valid email address using Regecx and possibly only be within AZ org.
-            # Also, does this need to be a specific set of users?
-            
-    provision:        
-        name: 'Provision using Terraf'
-        runs-on: ubuntu-latest
-        outputs:
-            repourl: ${{ steps.terraform.outputs.url }}
-            reponame: ${{ steps.terraform.outputs.name }}
-        steps:
-          - name: Send Terraform payload
-            shell: bash
-            id: terraform
-            run: |
-                echo 'Sending payload...'  
-    get_user_email:
-        runs-on: ubuntu-latest
-        name: A job to get a users email
-        steps:
-          - name: Print the found email
-            run: echo "${{ github.triggering_actor }}"
-          - name: get email
-            id: test
-            uses: evvanErb/get-github-email-by-username-action@v1.25
-            with:
-              github-username: ${{ github.triggering_actor }}
-
-          # Use the output from the `test` step
-          - name: Print the found email
-            run: echo "The email is ${{ steps.test.outputs.email }}"
+      # Use the output from the `test` step
+      - name: Print the found email
+        run: echo "The email is ${{ steps.test.outputs.email }}"
         # TODO: Based on input above, add correct payload and call the Terraform API
 
     # email:
