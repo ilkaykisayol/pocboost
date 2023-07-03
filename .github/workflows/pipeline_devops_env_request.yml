@@ -7,7 +7,7 @@ on:
     workflow_dispatch: # on demand
         inputs:
             owner:
-                description: 'Email address of the environment owner'
+                description: 'Github username of the environment owner'
                 required: true
                 type: string
             version:
