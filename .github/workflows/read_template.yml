@@ -11,12 +11,8 @@ jobs:
   file_contents:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Read package.json
-        id: package
-        uses: juliangruber/read-file-action@v1
+      - uses: actions/checkout@v3
+      - uses: flcdrg/replace-multiple-action@v1
         with:
-          path: ./on-demand-created.html
-      - name: Echo package.json
-        run: echo "${{ steps.package.outputs.content }}"
+          files: './*.html'
+          find: '[{ "{owner}": "Multiple", "replace": "Many" }]'
