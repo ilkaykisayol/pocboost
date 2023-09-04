@@ -21,4 +21,5 @@ jobs:
           path: "on-demand-created.html"
 
       - name: File contents
+        shell: bash
         run: echo "${ steps.read_file.outputs.contents }"
