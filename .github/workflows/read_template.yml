@@ -8,19 +8,17 @@ on:
           type: string
 
 jobs:
-  read_content:
+  file_contents:
     runs-on: ubuntu-latest
-    name: A job to read mail template
     steps:
-      - name: List Files
-        run: |
-          CURRENT_DIRECTORY=$(pwd)
-          echo "Current Working Directory: $CURRENT_DIRECTORY"
-          LIST_DIRECTORY=$(ls)
-          echo "Current Working List Directory: $LIST_DIRECTORY"
-      - name: Read VERSION file
-        id: getContent
-        run: echo "content=$(cat pocboost/on-demand-created.html)" >> $GITHUB_OUTPUT
-      # Use the output from the `test` step
-      - name: Print the found email
-        run: echo "The email is ${{ steps.getContent.outputs.content }}"
+      - name: Checkout code
+        uses: actions/checkout@v1
+
+      - name: Read file contents
+        id: read_file
+        uses: andstor/file-reader-action@v1
+        with:
+          path: "on-demand-created.html"
+
+      - name: File contents
+        run: echo "${ steps.read_file.outputs.contents }"
