@@ -14,5 +14,5 @@ jobs:
       - name: Read and Modify File
         run: |
           # Read the file content and store it in a variable
-          FILE_CONTENT=$(cat on-demand-created.html)
+          FILE_CONTENT=$(cat ./on-demand-created.html)
           echo "$FILE_CONTENT"
