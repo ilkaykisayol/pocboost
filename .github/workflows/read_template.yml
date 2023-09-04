@@ -18,8 +18,7 @@ jobs:
         id: read_file
         uses: andstor/file-reader-action@v1
         with:
-          path: "on-demand-created.html"
+          path: "on-demand-environment.html"
 
       - name: File contents
-        shell: bash
         run: echo "${ steps.read_file.outputs.contents }"
