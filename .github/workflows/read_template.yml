@@ -1,4 +1,4 @@
-name: Test Get Email from Github Username
+name: Test Get Email from Github Username and read content
 on:
   workflow_dispatch:
     inputs:
