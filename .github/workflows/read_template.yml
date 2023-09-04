@@ -11,9 +11,8 @@ jobs:
   find-and-replace:
     runs-on: ubuntu-latest
     steps:
-      - name: Find and replace string
-        uses: actions/find-and-replace@v2
-        with:
-          find: "old value"
-          replace: "new value"
-          files: on-demand-created.html
+      - name: Read and Modify File
+        run: |
+          # Read the file content and store it in a variable
+          FILE_CONTENT=$(cat on-demand-created.html)
+          echo "$FILE_CONTENT"
