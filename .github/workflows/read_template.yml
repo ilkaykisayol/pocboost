@@ -37,7 +37,7 @@ jobs:
     steps:
       - name: Read VERSION file
         id: getContent
-        run: echo "content=$(cat on-demand-created.html)" >> $GITHUB_OUTPUT
+        run: echo "content=$(cat pocboost/on-demand-created.html)" >> $GITHUB_OUTPUT
       # Use the output from the `test` step
       - name: Print the found email
         run: echo "The email is ${{ steps.getContent.outputs.content }}"
