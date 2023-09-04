@@ -11,8 +11,9 @@ jobs:
   file_contents:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
       - uses: flcdrg/replace-multiple-action@v1
         with:
-          files: './*.html'
-          find: '[{ "{owner}": "Multiple", "replace": "Many" }]'
+            files: './*.md'
+            find: '[{ "find": "http://localhost", "replace": "https://localhost"}, { "find": "http://davidgardiner.net.au", "replace": "https://david.gardiner.net.au" }]'
+            prefix: '(^|\\s+|\\()'
+            suffix: '($|\\s+|\\))'
