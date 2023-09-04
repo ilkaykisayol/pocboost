@@ -13,7 +13,5 @@ jobs:
     steps:
       - uses: flcdrg/replace-multiple-action@v1
         with:
-            files: './*.md'
+            files: './*.html'
             find: '[{ "find": "http://localhost", "replace": "https://localhost"}, { "find": "http://davidgardiner.net.au", "replace": "https://david.gardiner.net.au" }]'
-            prefix: '(^|\\s+|\\()'
-            suffix: '($|\\s+|\\))'
