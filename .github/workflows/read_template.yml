@@ -1,0 +1,43 @@
+name: Test Get Email from Github Username
+on:
+  workflow_dispatch:
+    inputs:
+      owner:
+          description: 'Github username of the environment owner'
+          required: true
+          type: string
+
+jobs:
+  params:
+      name: 'Set parameters'
+      runs-on: ubuntu-latest
+      outputs:
+          owner: ${{ steps.set-variable.outputs.owner }}
+          version: ${{ steps.set-variable.outputs.version }}
+          retention: ${{ steps.set-variable.outputs.retention }}
+      steps:
+        - name: Prepare github username
+          shell: bash
+          id: replace-username
+          run: |
+              backstageUserName=${{ inputs.owner }}
+              replaceValue="user:/default/"   
+              echo "username="${backstageUserName//$replaceValue}"" >> "$GITHUB_OUTPUT"
+        - name: Check params
+          shell: bash
+          id: set-variable
+          run: |
+              echo "owner=${{ steps.replace-username.outputs.username }}" >> "$GITHUB_OUTPUT"
+          # TODO: verify email, should be a valid email address using Regecx and possibly only be within AZ org.
+          # Also, does this need to be a specific set of users?
+  read_content:
+    runs-on: ubuntu-latest
+    name: A job to read mail template
+    needs: params
+    steps:
+      - name: Read VERSION file
+        id: getContent
+        run: echo "content=$(cat on-demand-created.html)" >> $GITHUB_OUTPUT
+      # Use the output from the `test` step
+      - name: Print the found email
+        run: echo "The email is ${{ steps.getContent.outputs.content }}"
