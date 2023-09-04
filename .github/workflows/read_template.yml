@@ -8,10 +8,12 @@ on:
           type: string
 
 jobs:
-  file_contents:
+  find-and-replace:
     runs-on: ubuntu-latest
     steps:
-      - uses: flcdrg/replace-multiple-action@v1
+      - name: Find and replace string
+        uses: actions/find-and-replace@v2
         with:
-            files: './*.html'
-            find: '[{ "find": "http://localhost", "replace": "https://localhost"}, { "find": "http://davidgardiner.net.au", "replace": "https://david.gardiner.net.au" }]'
+          find: "old value"
+          replace: "new value"
+          files: on-demand-created.html
