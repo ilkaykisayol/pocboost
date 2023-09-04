@@ -11,14 +11,12 @@ jobs:
   file_contents:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v1
-
-      - name: Read file contents
-        id: read_file
-        uses: andstor/file-reader-action@v1
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Read package.json
+        id: package
+        uses: juliangruber/read-file-action@v1
         with:
-          path: "on-demand-created.html"
-
-      - name: File contents
-        run: "${ steps.read_file.outputs.contents }"
+          path: ./on-demand-created.html
+      - name: Echo package.json
+        run: echo "${{ steps.package.outputs.content }}"
