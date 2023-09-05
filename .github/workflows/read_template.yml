@@ -59,14 +59,12 @@ jobs:
         uses: evvanErb/get-github-email-by-username-action@v1.25
         with:
           github-username: ${{ needs.params.outputs.owner }}
-
-      # Use the output from the `find-email` step
-      - name: Print the found email
-        run: echo "The email is ${{ steps.find-email.outputs.email }}"
   send_mail:
     runs-on: ubuntu-latest
     needs: [get_user_email, params]
     steps:
+      - name: Print the parameters
+        run: echo "The email is ${{ steps.get_user_email.outputs.email }}, owner is ${{ needs.params.outputs.owner }}, version is ${{ needs.params.outputs.version }}, retention is ${{ needs.params.outputs.retention }}"
       - uses: actions/checkout@v2
       - name: Read and Modify File
         id: replace-mail-body
@@ -75,6 +73,7 @@ jobs:
           FILE_CONTENT=$(cat ./on-demand-created.html)
           FILE_CONTENT="${FILE_CONTENT//##OWNER##/${{ needs.params.outputs.owner }}"
           FILE_CONTENT="${FILE_CONTENT//##VERSION##/${{ needs.params.outputs.version }}"
+          FILE_CONTENT="${FILE_CONTENT//##RETENTION##/${{ needs.params.outputs.retention }}"
           echo "body="$FILE_CONTENT"" >> "$GITHUB_OUTPUT"
       - name: Send mail
         uses: dawidd6/action-send-mail@v3
