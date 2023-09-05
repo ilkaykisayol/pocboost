@@ -11,6 +11,7 @@ jobs:
   find-and-replace:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Read and Modify File
         run: |
           # Read the file content and store it in a variable
