@@ -70,7 +70,7 @@ jobs:
           # Read the file content and store it in a variable
           FILE_CONTENT=$(cat ./on-demand-created.html)
           FILE_CONTENT="${FILE_CONTENT//##OWNER##/${{ inputs.owner }}}"
-          FILE_CONTENT="${FILE_CONTENT//##VERSION##/${{ inputs.owner }}}"
+          FILE_CONTENT="${FILE_CONTENT//##VERSION##/${{ needs.params.outputs.owner }}"
           echo "body="$FILE_CONTENT"" >> "$GITHUB_OUTPUT"
       - name: Send mail
         uses: dawidd6/action-send-mail@v3
