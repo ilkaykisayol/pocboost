@@ -13,12 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Read and Modify File
+        id: replace-mail-body
         run: |
           # Read the file content and store it in a variable
           FILE_CONTENT=$(cat ./on-demand-created.html)
           FILE_CONTENT="${FILE_CONTENT//##OWNER##/${{ inputs.owner }}}"
           FILE_CONTENT="${FILE_CONTENT//##VERSION##/${{ inputs.owner }}}"
           echo "$FILE_CONTENT"
+          echo "body=$FILE_CONTENT" >> "$GITHUB_OUTPUT"
       - name: Send mail
         uses: dawidd6/action-send-mail@v3
         with:
@@ -49,7 +51,7 @@ jobs:
           # Optional plain body:
           body: Build job of ${{github.repository}} completed successfully!
           # Optional HTML body read from file:
-          html_body: file://on-demand-created.html
+          html_body: ${{ steps.replace-mail-body.outputs.body }}
           # Optional carbon copy recipients:
           cc: kyloren@example.com,leia@example.com
           # Optional blind carbon copy recipients:
