@@ -28,7 +28,7 @@ on:
 
 jobs:
   params:
-      name: 'Set parameters'
+      name: Set parameters
       runs-on: ubuntu-latest
       outputs:
           owner: ${{ steps.set-variable.outputs.owner }}
@@ -45,8 +45,6 @@ jobs:
           id: set-variable
           run: |
               echo "owner=${{ steps.replace-username.outputs.username }}" >> "$GITHUB_OUTPUT"
-        - name: Print the username
-          run: echo "The username is ${{ steps.replace-username.outputs.username }}"
   get_user_email:
     runs-on: ubuntu-latest
     name: A job to get a users email
@@ -54,19 +52,18 @@ jobs:
     outputs:
           email: ${{ steps.find-email.outputs.email }}
     steps:
-      - name: find email
+      - name: Find email
         id: find-email
         uses: evvanErb/get-github-email-by-username-action@v1.25
         with:
           github-username: ${{ needs.params.outputs.owner }}
   send_mail:
     runs-on: ubuntu-latest
+    name: A job to send an email to user
     needs: [get_user_email, params]
     steps:
-      - name: Print the parameters
-        run: echo "The email is ${{ needs.get_user_email.outputs.email }}, owner is ${{ needs.params.outputs.owner }}, version is ${{ inputs.version }}, retention is ${{ inputs.retention }}"
       - uses: actions/checkout@v2
-      - name: Read and Modify File
+      - name: Replace HTML File
         id: replace-mail-body
         run: |
           # Read the file content and store it in a variable
