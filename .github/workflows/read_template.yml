@@ -16,8 +16,8 @@ jobs:
         run: |
           # Read the file content and store it in a variable
           FILE_CONTENT=$(cat ./on-demand-created.html)
-          FILE_CONTENT="${FILE_CONTENT//{owner}/${{ inputs.owner }}}"
-          FILE_CONTENT="${FILE_CONTENT//{version}/${{ inputs.owner }}}"
+          FILE_CONTENT="${FILE_CONTENT//##OWNER##/${{ inputs.owner }}}"
+          FILE_CONTENT="${FILE_CONTENT//##VERSION##/${{ inputs.owner }}}"
           echo "$FILE_CONTENT"
       - name: Send mail
         uses: dawidd6/action-send-mail@v3
