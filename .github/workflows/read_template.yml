@@ -47,6 +47,8 @@ jobs:
           id: set-variable
           run: |
               echo "owner=${{ steps.replace-username.outputs.username }}" >> "$GITHUB_OUTPUT"
+        - name: Print the username
+          run: echo "The username is ${{ steps.replace-username.outputs.username }}"
   get_user_email:
     runs-on: ubuntu-latest
     name: A job to get a users email
