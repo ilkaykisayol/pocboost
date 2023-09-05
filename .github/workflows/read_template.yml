@@ -32,8 +32,6 @@ jobs:
       runs-on: ubuntu-latest
       outputs:
           owner: ${{ steps.set-variable.outputs.owner }}
-          version: ${{ steps.set-variable.outputs.version }}
-          retention: ${{ steps.set-variable.outputs.retention }}
       steps:
         - name: Prepare github username
           shell: bash
@@ -64,7 +62,7 @@ jobs:
     needs: [get_user_email, params]
     steps:
       - name: Print the parameters
-        run: echo "The email is ${{ steps.get_user_email.outputs.email }}, owner is ${{ needs.params.outputs.owner }}, version is ${{ needs.params.outputs.version }}, retention is ${{ needs.params.outputs.retention }}"
+        run: echo "The email is ${{ needs.get_user_email.outputs.email }}, owner is ${{ needs.params.outputs.owner }}, version is ${{ inputs.version }}, retention is ${{ inputs.retention }}"
       - uses: actions/checkout@v2
       - name: Read and Modify File
         id: replace-mail-body
@@ -72,8 +70,8 @@ jobs:
           # Read the file content and store it in a variable
           FILE_CONTENT=$(cat ./on-demand-created.html)
           FILE_CONTENT="${FILE_CONTENT//##OWNER##/${{ needs.params.outputs.owner }}"
-          FILE_CONTENT="${FILE_CONTENT//##VERSION##/${{ needs.params.outputs.version }}"
-          FILE_CONTENT="${FILE_CONTENT//##RETENTION##/${{ needs.params.outputs.retention }}"
+          FILE_CONTENT="${FILE_CONTENT//##VERSION##/${{ inputs.version }}"
+          FILE_CONTENT="${FILE_CONTENT//##RETENTION##/${{ inputs.retention }}"
           echo "body="$FILE_CONTENT"" >> "$GITHUB_OUTPUT"
       - name: Send mail
         uses: dawidd6/action-send-mail@v3
@@ -99,7 +97,7 @@ jobs:
           # Required mail subject:
           subject: Github Actions job result
           # Required recipients' addresses:
-          to: ${{ needs.params.outputs.owner }}
+          to: ${{ needs.get_user_email.outputs.email }}
           # Required sender full name (address can be skipped):
           from: Luke Skywalker # <user@example.com>
           # Optional plain body:
