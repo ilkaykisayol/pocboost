@@ -1,4 +1,4 @@
-name: Test send mai
+name: Test send mail
 on:
     workflow_dispatch: # on demand
         inputs:
