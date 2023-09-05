@@ -51,6 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     name: A job to get a users email
     needs: params
+    outputs:
+          email: ${{ steps.find-email.outputs.email }}
     steps:
       - name: find email
         id: find-email
