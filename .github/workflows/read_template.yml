@@ -1,15 +1,69 @@
-name: Test send mail
+name: Test send mai
 on:
-  workflow_dispatch:
-    inputs:
-      owner:
-          description: 'Github username of the environment owner'
-          required: true
-          type: string
+    workflow_dispatch: # on demand
+        inputs:
+            owner:
+                description: 'Github username of the environment owner'
+                required: true
+                type: string
+            version:
+                description: 'Choose application and environment version'
+                required: true
+                type: choice
+                options: 
+                - 'Boost 1.1'
+                - 'Boost 1.2'
+                default: 'Boost 1.2'
+            retention:
+                description: 'Choose retention period - environment will be decommissioned after this period'
+                required: true
+                type: choice
+                options: 
+                - '1 week'
+                - '2 weeks'
+                - '4 weeks'
+                - '8 weeks'
+                - '10 weeks'
+                default: '2 weeks'
 
 jobs:
-  find-and-replace:
+  params:
+      name: 'Set parameters'
+      runs-on: ubuntu-latest
+      outputs:
+          owner: ${{ steps.set-variable.outputs.owner }}
+          version: ${{ steps.set-variable.outputs.version }}
+          retention: ${{ steps.set-variable.outputs.retention }}
+      steps:
+        - name: Prepare github username
+          shell: bash
+          id: replace-username
+          run: |
+              backstageUserName=${{ inputs.owner }}
+              replaceValue="user:default/"   
+              echo "username="${backstageUserName//$replaceValue}"" >> "$GITHUB_OUTPUT"
+        - name: Check params
+          shell: bash
+          id: set-variable
+          run: |
+              echo "owner=${{ steps.replace-username.outputs.username }}" >> "$GITHUB_OUTPUT"
+  get_user_email:
     runs-on: ubuntu-latest
+    name: A job to get a users email
+    needs: params
+    steps:
+      - name: find email
+        id: find-email
+        uses: evvanErb/get-github-email-by-username-action@v1.25
+        with:
+          github-username: ${{ needs.params.outputs.owner }}
+
+      # Use the output from the `find-email` step
+      - name: Print the found email
+        run: echo "The email is ${{ steps.find-email.outputs.email }}"
+  send_mail:
+    runs-on: ubuntu-latest
+    needs: [get_user_email, params]
     steps:
       - uses: actions/checkout@v2
       - name: Read and Modify File
@@ -17,8 +71,9 @@ jobs:
         run: |
           # Read the file content and store it in a variable
           FILE_CONTENT=$(cat ./on-demand-created.html)
-          FILE_CONTENT="${FILE_CONTENT//##OWNER##/${{ inputs.owner }}}"
-          FILE_CONTENT="${FILE_CONTENT//##VERSION##/${{ inputs.owner }}}"
+          FILE_CONTENT="${FILE_CONTENT//##OWNER##/${{ needs.params.outputs.owner }}"
+          FILE_CONTENT="${FILE_CONTENT//##VERSION##/${{ needs.params.outputs.version }}"
+          FILE_CONTENT="${FILE_CONTENT//##RETENTION##/${{ needs.params.outputs.retention }}"
           echo "body="$FILE_CONTENT"" >> "$GITHUB_OUTPUT"
       - name: Send mail
         uses: dawidd6/action-send-mail@v3
@@ -44,7 +99,7 @@ jobs:
           # Required mail subject:
           subject: Github Actions job result
           # Required recipients' addresses:
-          to: ilkaykisayol@gmail.com
+          to: ${{ needs.params.outputs.owner }}
           # Required sender full name (address can be skipped):
           from: Luke Skywalker # <user@example.com>
           # Optional plain body:
