@@ -94,7 +94,7 @@ jobs:
           # Optional (recommended) mail server password:
           password: ${{secrets.MAIL_PASSWORD}}
           # Required mail subject:
-          subject: Github Actions job result
+          subject: On-Demand Environment Creation
           # Required recipients' addresses:
           to: ilkay.kisayol@astrazeneca.com # ${{ needs.get_user_email.outputs.email }}
           # Required sender full name (address can be skipped):
