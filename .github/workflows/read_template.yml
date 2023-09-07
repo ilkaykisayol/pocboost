@@ -53,10 +53,19 @@ jobs:
           email: ${{ steps.find-email.outputs.email }}
     steps:
       - name: Find email
+        shell: bash
         id: find-email
-        uses: evvanErb/get-github-email-by-username-action@v1.25
-        with:
-          github-username: ${{ needs.params.outputs.owner }}
+        run: |
+            # Set the URL of the API endpoint
+            url="https://api.github.com/users/${{ steps.replace-username.outputs.username }}"
+            
+            # Make the curl request
+            response=$(curl -s $url)
+            
+            # Extract the email value from the response
+            email=$(echo $response | jq '.email')
+            
+            echo "email=$email" >> "$GITHUB_OUTPUT"
   prepare_mail:
     runs-on: ubuntu-latest
     name: A job to prepare an email
