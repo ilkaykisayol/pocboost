@@ -57,14 +57,14 @@ jobs:
         id: find-email
         run: |
             # Set the URL of the API endpoint
-            url="https://api.github.com/users/${{ steps.replace-username.outputs.username }}"
+            url="https://api.github.com/users/"
             
             # Make the curl request
             response=$(curl -L \
               -H "Accept: application/vnd.github+json" \
               -H "Authorization: Bearer ${{secrets.TOKEN}}" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
-              $url)
+              $url${{ steps.replace-username.outputs.username }})
             echo $response
             # Extract the email value from the response
             email=$(echo $response | jq '.email')
