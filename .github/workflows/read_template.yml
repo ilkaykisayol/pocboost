@@ -82,7 +82,7 @@ jobs:
         id: replace-mail-body
         run: |
           # Read the file content and store it in a variable
-          FILE_CONTENT=$(cat ./on-demand-created.html)
+          FILE_CONTENT=$(cat ./utils/on-demand-created.html)
           FILE_CONTENT="${FILE_CONTENT//##OWNER##/${{ needs.params.outputs.owner }}}"
           FILE_CONTENT="${FILE_CONTENT//##VERSION##/${{ inputs.version }}}"
           FILE_CONTENT="${FILE_CONTENT//##RETENTION##/${{ inputs.retention }}}"
@@ -101,7 +101,7 @@ jobs:
           python-version: '3.x'
 
       - name: Run send_mail.py script
-        run: python send_mail.py
+        run: python ./utils/send_mail.py
         env:
           RECIPIENT_EMAIL: ilkay.kisayol@astrazeneca.com # ${{ needs.get_user_email.outputs.email }}
           EMAIL_SUBJECT: "Your Subject Here"
