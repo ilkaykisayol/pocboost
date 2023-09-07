@@ -100,11 +100,10 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Set working directory
-        run: cd utils
-
       - name: Run send_mail.py script
-        run: python send_mail.py
+        run: |
+            cd utils
+            python send_mail.py
         env:
           RECIPIENT_EMAIL: ilkay.kisayol@astrazeneca.com # ${{ needs.get_user_email.outputs.email }}
           EMAIL_SUBJECT: "Your Subject Here"
