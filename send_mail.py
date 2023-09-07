@@ -1,38 +1,28 @@
 import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
-from github import context
 
-# Get the email parameters from environment variables
-recipient_email = os.environ['RECIPIENT_EMAIL']
-email_subject = os.environ['EMAIL_SUBJECT']
-email_body = os.environ['EMAIL_BODY']
+def send_email(recipient, subject, message):
+    # Create a secure connection to the SMTP server
+    server = smtplib.SMTP('smtp.office365.com', 587)
+    server.starttls()
 
-# Get the email parameters from GitHub Actions secrets
-smtp_server = 'sandbox.smtp.mailtrap.io'
-smtp_port = 2525
-smtp_username = context.secrets['MAIL_USERNAME']
-smtp_password = context.secrets['MAIL_PASSWORD']
+    mail_username = os.environ['MAIL_USERNAME']
+    mail_password = os.environ['MAIL_PASSWORD']
+    # Login to the email account
+    server.login(mail_username, mail_password)
 
-# Create a message
-message = MIMEMultipart()
-message['From'] = smtp_username
-message['To'] = recipient_email
-message['Subject'] = email_subject
+    # Send the email
+    message = 'Subject: {}\n\n{}'.format(subject, message)
+    server.sendmail(mail_username, recipient, message)
 
-# Add a plain text message
-message.attach(MIMEText(email_body, 'html'))
+    server.quit()
 
-# Create a secure SSL context
-context = smtplib.SMTP(smtp_server, smtp_port)
-context.starttls()
+# Get the sender and recipient email addresses from environment variables
 
-# Login to the SMTP server with your Gmail credentials
-context.login(smtp_username, smtp_password)
+recipient = os.environ['RECIPIENT_EMAIL']
+
+# Get the subject and message from the script arguments
+subject = 'Test email from GitHub Actions'
+message = 'This is a test email sent from GitHub Actions.'
 
 # Send the email
-context.sendmail(smtp_username, recipient_email, message.as_string())
-
-# Quit the SMTP server
-context.quit()
+send_email(recipient, subject, message)
