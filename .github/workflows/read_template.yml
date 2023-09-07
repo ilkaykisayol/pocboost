@@ -93,6 +93,11 @@ jobs:
     name: A job to send an email to user
     needs: [get_user_email, prepare_mail]
     steps:
+      - name: Print email
+        shell: bash
+        id: find-email
+        run: |
+            echo ${{ needs.get_user_email.outputs.email }}
       - name: Checkout code
         uses: actions/checkout@v2
 
