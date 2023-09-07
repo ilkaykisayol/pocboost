@@ -57,10 +57,12 @@ jobs:
         uses: evvanErb/get-github-email-by-username-action@v1.25
         with:
           github-username: ${{ needs.params.outputs.owner }}
-  send_mail:
+  prepare_mail:
     runs-on: ubuntu-latest
-    name: A job to send an email to user
-    needs: [get_user_email, params]
+    name: A job to prepare an email
+    needs: params
+    outputs:
+          body: ${{ steps.replace-mail-body.outputs.body }}
     steps:
       - uses: actions/checkout@v2
       - name: Replace HTML File
@@ -72,40 +74,25 @@ jobs:
           FILE_CONTENT="${FILE_CONTENT//##VERSION##/${{ inputs.version }}}"
           FILE_CONTENT="${FILE_CONTENT//##RETENTION##/${{ inputs.retention }}}"
           echo "body="$FILE_CONTENT"" >> "$GITHUB_OUTPUT"
-      - name: Send mail
-        uses: dawidd6/action-send-mail@v3
+  send_email:
+    runs-on: ubuntu-latest
+    name: A job to send an email to user
+    needs: [get_user_email, prepare_mail]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          # Specify connection via URL (replaces server_address, server_port, secure,
-          # username and password)
-          #
-          # Format:
-          #
-          #  * smtp://user:password@server:port
-          #  * smtp+starttls://user:password@server:port
-          connection_url: ${{secrets.MAIL_CONNECTION}}
-          # Required mail server address if not connection_url:
-          server_address: smtp.office365.com
-          # Server port, default 25:
-          server_port: 587
-          # Optional whether this connection use TLS (default is true if server_port is 465)
-          secure: true
-          # Optional (recommended) mail server username:
-          username: ${{secrets.MAIL_USERNAME}}
-          # Optional (recommended) mail server password:
-          password: ${{secrets.MAIL_PASSWORD}}
-          # Required mail subject:
-          subject: On-Demand Environment Creation
-          # Required recipients' addresses:
-          to: ilkay.kisayol@astrazeneca.com # ${{ needs.get_user_email.outputs.email }}
-          # Required sender full name (address can be skipped):
-          from: No Reply # <user@example.com>
-          # Optional plain body:
-          body: Build job of ${{github.repository}} completed successfully!
-          # Optional HTML body read from file:
-          html_body: ${{ steps.replace-mail-body.outputs.body }}
-          # Optional unsigned/invalid certificates allowance:
-          ignore_cert: true
-          # Optional converting Markdown to HTML (set content_type to text/html too):
-          convert_markdown: true
-          # Optional priority: 'high', 'normal' (default) or 'low'
-          priority: low
+          python-version: '3.x'
+
+      - name: Run send_mail.py script
+        run: python send_mail.py
+        env:
+          RECIPIENT_EMAIL: ${{ needs.get_user_email.outputs.email }}
+          EMAIL_SUBJECT: "Your Subject Here"
+          EMAIL_BODY: ${{ needs.prepare_mail.outputs.body }}
+          MAIL_USERNAME: ${{secrets.MAIL_USERNAME}}
+          MAIL_PASSWORD: ${{secrets.MAIL_PASSWORD}}
+          
