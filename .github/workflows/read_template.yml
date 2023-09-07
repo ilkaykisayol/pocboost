@@ -65,10 +65,10 @@ jobs:
               -H "Authorization: Bearer ${{secrets.TOKEN}}" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
               $url)
-                        
+            echo $response
             # Extract the email value from the response
             email=$(echo $response | jq '.email')
-            
+            echo $email
             echo "email=$email" >> "$GITHUB_OUTPUT"
   prepare_mail:
     runs-on: ubuntu-latest
