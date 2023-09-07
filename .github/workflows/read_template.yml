@@ -101,7 +101,7 @@ jobs:
           python-version: '3.x'
 
       - name: Run send_mail.py script
-        run: python ./utils/send_mail.py
+        run: python utils/send_mail.py
         env:
           RECIPIENT_EMAIL: ilkay.kisayol@astrazeneca.com # ${{ needs.get_user_email.outputs.email }}
           EMAIL_SUBJECT: "Your Subject Here"
