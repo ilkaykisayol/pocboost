@@ -11,8 +11,8 @@ smtp_password = os.environ['MAIL_PASSWORD']  # Replace with your Gmail password 
 
 # Email content
 recipient_email = os.environ['RECIPIENT_EMAIL']
-subject = 'Hello from GitHub Actions'
-message = 'This is a test email sent from a GitHub Actions workflow.'
+subject = os.environ['EMAIL_SUBJECT']
+message = os.environ['EMAIL_BODY']
 
 # Create a message
 msg = MIMEMultipart()
@@ -21,7 +21,7 @@ msg['To'] = recipient_email
 msg['Subject'] = subject
 
 # Attach the message
-msg.attach(MIMEText(message, 'plain'))
+msg.attach(MIMEText(message, 'html'))
 
 try:
     # Create a secure SSL context
