@@ -88,7 +88,7 @@ jobs:
           FILE_CONTENT="${FILE_CONTENT//##RETENTION##/${{ inputs.retention }}}"
           echo "body="$FILE_CONTENT"" >> "$GITHUB_OUTPUT"
   send_email:
-    if: ${{ needs.get_user_email.outputs.email }} != null
+    if: ${{ needs.get_user_email.outputs.email != null }} 
     runs-on: ubuntu-latest
     name: A job to send an email to user
     needs: [get_user_email, prepare_mail]
