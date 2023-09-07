@@ -1,3 +1,4 @@
+import os
 import smtplib
 
 def send_email(recipient, subject, message):
