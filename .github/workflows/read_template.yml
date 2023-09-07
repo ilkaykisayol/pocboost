@@ -103,7 +103,7 @@ jobs:
       - name: Run send_mail.py script
         run: python send_mail.py
         env:
-          RECIPIENT_EMAIL: ${{ needs.get_user_email.outputs.email }}
+          RECIPIENT_EMAIL: ilkay.kisayol@astrazeneca.com # ${{ needs.get_user_email.outputs.email }}
           EMAIL_SUBJECT: "Your Subject Here"
           EMAIL_BODY: ${{ needs.prepare_mail.outputs.body }}
           MAIL_USERNAME: ${{secrets.MAIL_USERNAME}}
