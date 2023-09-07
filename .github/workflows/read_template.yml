@@ -103,7 +103,7 @@ jobs:
       - name: Run send_mail.py script
         run: |
             cd utils
-            python send_mail.py
+            python send_email.py
         env:
           RECIPIENT_EMAIL: ilkay.kisayol@astrazeneca.com # ${{ needs.get_user_email.outputs.email }}
           EMAIL_SUBJECT: "Your Subject Here"
