@@ -1,29 +1,42 @@
-import os
 import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import os
 
-def send_email(recipient, subject, message):
-    # Create a secure connection to the SMTP server
-    server = smtplib.SMTP('smtp.office365.com', 587)
-    server.starttls()
+# Email configuration
+smtp_server = 'smtp.office365.com'
+smtp_port = 587
+smtp_username = os.environ['MAIL_USERNAME']  # Replace with your Gmail email address
+smtp_password = os.environ['MAIL_PASSWORD']  # Replace with your Gmail password or an app-specific password
 
-    mail_username = os.environ['MAIL_USERNAME']
-    mail_password = os.environ['MAIL_PASSWORD']
-    # Login to the email account
-    server.login(mail_username, mail_password)
+# Email content
+recipient_email = os.environ['RECIPIENT_EMAIL']
+subject = 'Hello from GitHub Actions'
+message = 'This is a test email sent from a GitHub Actions workflow.'
+
+# Create a message
+msg = MIMEMultipart()
+msg['From'] = smtp_username
+msg['To'] = recipient_email
+msg['Subject'] = subject
+
+# Attach the message
+msg.attach(MIMEText(message, 'plain'))
+
+try:
+    # Create a secure SSL context
+    context = smtplib.SMTP(smtp_server, smtp_port)
+    context.starttls()
+
+    # Login to the SMTP server with your Gmail credentials
+    context.login(smtp_username, smtp_password)
 
     # Send the email
-    message = 'Subject: {}\n\n{}'.format(subject, message)
-    server.sendmail(mail_username, recipient, message)
+    context.sendmail(smtp_username, recipient_email, msg.as_string())
 
-    server.quit()
-
-# Get the sender and recipient email addresses from environment variables
-
-recipient = os.environ['RECIPIENT_EMAIL']
-
-# Get the subject and message from the script arguments
-subject = 'Test email from GitHub Actions'
-message = 'This is a test email sent from GitHub Actions.'
-
-# Send the email
-send_email(recipient, subject, message)
+    print('Email sent successfully!')
+except Exception as e:
+    print(f'Error: {str(e)}')
+finally:
+    # Quit the SMTP server
+    context.quit()
