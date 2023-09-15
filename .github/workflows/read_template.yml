@@ -25,7 +25,11 @@ on:
                 - '8 weeks'
                 - '10 weeks'
                 default: '2 weeks'
-
+env:
+  CLIENT_ID: ${{ secrets.CLIENT_ID }}
+  CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+  TENANT_ID: ${{ secrets.TENANT_ID }}
+  
 jobs:
   params:
       name: Set parameters
@@ -101,19 +105,68 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
-          python-version: '3.x'
+          node-version: '14'
 
-      - name: Run send_mail.py script
+      - name: Install Graph SDK
+        run: npm install @azure/identity @azure/graph
+
+      - name: Send Email using Microsoft Graph
         run: |
-            cd utils
-            python send_email.py
+          // Your Node.js script here to send the email using Microsoft Graph
+          // You can use the Microsoft Graph JavaScript SDK to make API calls.
+            const { ClientSecretCredential } = require("@azure/identity");
+            const { GraphRbacManagementClient } = require("@azure/graph");
+            const { DefaultAzureCredential } = require("@azure/identity");
+            
+            // Define your app and email details
+            const clientId = process.env.CLIENT_ID;
+            const clientSecret = process.env.CLIENT_SECRET;
+            const tenantId = process.env.TENANT_ID;
+            const toEmail = "recipient@example.com";
+            const subject = "Test Email";
+            const bodyContent = "This is a test email sent using Microsoft Graph API.";
+            
+            // Create a client credential instance
+            const clientCredential = new ClientSecretCredential(tenantId, clientId, clientSecret);
+            
+            // Create a Graph client
+            const graphClient = new GraphRbacManagementClient(clientCredential, {
+              baseUri: "https://graph.microsoft.com"
+            });
+            
+            // Compose the email message
+            const email = {
+              message: {
+                subject: subject,
+                body: {
+                  contentType: "Text",
+                  content: bodyContent,
+                },
+                toRecipients: [
+                  {
+                    emailAddress: {
+                      address: toEmail,
+                    },
+                  },
+                ],
+              },
+              saveToSentItems: false,
+            };
+            
+            // Send the email using Microsoft Graph API
+            (async () => {
+              try {
+                const response = await graphClient.me.sendMail(email);
+                console.log("Email sent:", response);
+              } catch (error) {
+                console.error("Error sending email:", error);
+              }
+            })();
         env:
-          RECIPIENT_EMAIL: ilkay.kisayol@astrazeneca.com # ${{ needs.get_user_email.outputs.email }}
-          EMAIL_SUBJECT: "Your Subject Here"
-          EMAIL_BODY: ${{ needs.prepare_mail.outputs.body }}
-          MAIL_USERNAME: ${{secrets.MAIL_USERNAME}}
-          MAIL_PASSWORD: ${{secrets.MAIL_PASSWORD}}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          TENANT_ID: ${{ secrets.TENANT_ID }}
           
