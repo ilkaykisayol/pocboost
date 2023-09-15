@@ -6,7 +6,7 @@ const { DefaultAzureCredential } = require("@azure/identity");
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const tenantId = process.env.TENANT_ID;
-const toEmail = "recipient@example.com";
+const toEmail = "ilkaykisayol@gmail.com";
 const subject = "Test Email";
 const bodyContent = "This is a test email sent using Microsoft Graph API.";
 
