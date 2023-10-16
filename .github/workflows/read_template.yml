@@ -98,7 +98,7 @@ jobs:
   send_email:
     runs-on: ubuntu-latest
     name: Send an email to user
-    needs: [get_user_email, prepare_mail]
+    needs: [get_user_email, prepare_mail, params]
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
