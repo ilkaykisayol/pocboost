@@ -1,42 +1,28 @@
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+import boto3
+from botocore.exceptions import NoCredentialsError
 import os
-
-# Email configuration
-smtp_server = 'smtp.office365.com'
-smtp_port = 587
-smtp_username = os.environ['MAIL_USERNAME']  # Replace with your Gmail email address
-smtp_password = os.environ['MAIL_PASSWORD']  # Replace with your Gmail password or an app-specific password
 
 # Email content
 recipient_email = os.environ['RECIPIENT_EMAIL']
 subject = os.environ['EMAIL_SUBJECT']
 message = os.environ['EMAIL_BODY']
 
-# Create a message
-msg = MIMEMultipart()
-msg['From'] = smtp_username
-msg['To'] = recipient_email
-msg['Subject'] = subject
+ses = boto3.client('ses', region_name='eu-west-1')
+sender = 'supportdmdp@astrazeneca.com'
 
-# Attach the message
-msg.attach(MIMEText(message, 'html'))
+# Create the email message
+message = {
+    'Subject': {'Data': subject},
+    'Body': {'Html': {'Data': message}},
+}
 
+# Send the email
 try:
-    # Create a secure SSL context
-    context = smtplib.SMTP(smtp_server, smtp_port)
-    context.starttls()
-
-    # Login to the SMTP server with your Gmail credentials
-    context.login(smtp_username, smtp_password)
-
-    # Send the email
-    context.sendmail(smtp_username, recipient_email, msg.as_string())
-
-    print('Email sent successfully!')
-except Exception as e:
-    print(f'Error: {str(e)}')
-finally:
-    # Quit the SMTP server
-    context.quit()
+    response = ses.send_email(
+        Source=sender,
+        Destination={'ToAddresses': [recipient_email]},
+        Message=message
+    )
+    print(f"Email sent with message ID: {response['MessageId']}")
+except NoCredentialsError:
+    print("AWS credentials not available.")
