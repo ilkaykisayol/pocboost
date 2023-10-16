@@ -106,6 +106,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ needs.params.outputs.aws_role }}
+          role-session-name: backstage-ondemand-${{ github.run_number }}
           aws-region: eu-west-1
       - name: Set up Python
         uses: actions/setup-python@v2
