@@ -1,5 +1,9 @@
 name: Request - Environment - DevOps Sandbox
 
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
 on:
   workflow_dispatch: # on demand
     inputs:
@@ -33,6 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       owner: ${{ steps.set-variable.outputs.owner }}
+      aws_role: ${{ steps.set-variable.outputs.aws_role }}
     steps:
       - name: Prepare github username
         shell: bash
@@ -45,6 +50,8 @@ jobs:
         shell: bash
         id: set-variable
         run: |
+          AWS_ACCOUNT_ID=703691886976
+          echo "aws_role=arn:aws:iam::$AWS_ACCOUNT_ID:role/adm-dmdp-github-actions-build-role" >> $GITHUB_OUTPUT
           echo "owner=${{ steps.replace-username.outputs.username }}" >> "$GITHUB_OUTPUT"
   get_user_email:
     runs-on: ubuntu-latest
@@ -95,6 +102,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ needs.params.outputs.aws_role }}
+          aws-region: eu-west-1
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
