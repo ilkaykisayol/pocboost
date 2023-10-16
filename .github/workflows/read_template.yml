@@ -1,85 +1,82 @@
-name: Test send mail
+name: Request - Environment - DevOps Sandbox
+
 on:
-    workflow_dispatch: # on demand
-        inputs:
-            owner:
-                description: 'Github username of the environment owner'
-                required: true
-                type: string
-            version:
-                description: 'Choose application and environment version'
-                required: true
-                type: choice
-                options: 
-                - 'Boost 1.1'
-                - 'Boost 1.2'
-                default: 'Boost 1.2'
-            retention:
-                description: 'Choose retention period - environment will be decommissioned after this period'
-                required: true
-                type: choice
-                options: 
-                - '1 week'
-                - '2 weeks'
-                - '4 weeks'
-                - '8 weeks'
-                - '10 weeks'
-                default: '2 weeks'
-env:
-  CLIENT_ID: ${{ secrets.CLIENT_ID }}
-  CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-  TENANT_ID: ${{ secrets.TENANT_ID }}
-  
+  workflow_dispatch: # on demand
+    inputs:
+      owner:
+        description: 'Github username of the environment owner'
+        required: true
+        type: string
+      version:
+        description: 'Choose application and environment version'
+        required: true
+        type: choice
+        options:
+          - 'Boost 1.1'
+          - 'Boost 1.2'
+        default: 'Boost 1.2'
+      retention:
+        description: 'Choose retention period - environment will be decommissioned after this period'
+        required: true
+        type: choice
+        options:
+          - '1 week'
+          - '2 weeks'
+          - '4 weeks'
+          - '8 weeks'
+          - '10 weeks'
+        default: '2 weeks'
+
 jobs:
   params:
-      name: Set parameters
-      runs-on: ubuntu-latest
-      outputs:
-          owner: ${{ steps.set-variable.outputs.owner }}
-      steps:
-        - name: Prepare github username
-          shell: bash
-          id: replace-username
-          run: |
-              backstageUserName=${{ inputs.owner }}
-              replaceValue="user:default/"   
-              echo "username="${backstageUserName//$replaceValue}"" >> "$GITHUB_OUTPUT"
-        - name: Check params
-          shell: bash
-          id: set-variable
-          run: |
-              echo "owner=${{ steps.replace-username.outputs.username }}" >> "$GITHUB_OUTPUT"
+    name: Set parameters
+    runs-on: ubuntu-latest
+    outputs:
+      owner: ${{ steps.set-variable.outputs.owner }}
+    steps:
+      - name: Prepare github username
+        shell: bash
+        id: replace-username
+        run: |
+          backstageUserName=${{ inputs.owner }}
+          replaceValue="user:default/"   
+          echo "username="${backstageUserName//$replaceValue}"" >> "$GITHUB_OUTPUT"
+      - name: Check params
+        shell: bash
+        id: set-variable
+        run: |
+          echo "owner=${{ steps.replace-username.outputs.username }}" >> "$GITHUB_OUTPUT"
   get_user_email:
     runs-on: ubuntu-latest
     name: A job to get a users email
     needs: params
     outputs:
-          email: ${{ steps.find-email.outputs.email }}
+      email: ${{ steps.find-email.outputs.email }}
     steps:
       - name: Find email
         shell: bash
         id: find-email
         run: |
-            # Set the URL of the API endpoint
-            url="https://api.github.com/users/${{ needs.params.outputs.owner }}"
-            
-            # Make the curl request
-            response=$(curl -L \
-              -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{secrets.TOKEN}}" \
-              -H "X-GitHub-Api-Version: 2022-11-28" \
-              $url)
-            echo $response
-            # Extract the email value from the response
-            email=$(echo $response | jq '.email')
-            echo $email
-            echo "email=$email" >> "$GITHUB_OUTPUT"
+          # Set the URL of the API endpoint
+          url="https://api.github.com/users/${{ needs.params.outputs.owner }}"
+          
+          # Make the curl request
+          response=$(curl -L \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{secrets.TEST_TOKEN}}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            $url)
+          echo $response
+          # Extract the email value from the response
+          email=$(echo $response | jq '.email')
+          echo $email
+          echo "email=$email" >> "$GITHUB_OUTPUT"
   prepare_mail:
     runs-on: ubuntu-latest
-    name: A job to prepare an email
+    name: Prepare an email
     needs: params
     outputs:
-          body: ${{ steps.replace-mail-body.outputs.body }}
+      body: ${{ steps.replace-mail-body.outputs.body }}
     steps:
       - uses: actions/checkout@v2
       - name: Replace HTML File
@@ -92,33 +89,22 @@ jobs:
           FILE_CONTENT="${FILE_CONTENT//##RETENTION##/${{ inputs.retention }}}"
           echo "body="$FILE_CONTENT"" >> "$GITHUB_OUTPUT"
   send_email:
-    if: ${{ needs.get_user_email.outputs.email != null }} 
     runs-on: ubuntu-latest
-    name: A job to send an email to user
+    name: Send an email to user
     needs: [get_user_email, prepare_mail]
     steps:
-      - name: Print email
-        shell: bash
-        id: find-email
-        run: |
-            echo ${{ needs.get_user_email.outputs.email }}
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          node-version: '14'
-
-      - name: Install Graph SDK
-        run: npm install @azure/identity @azure/graph
-
-      - name: Send Email using Microsoft Graph
+          python-version: '3.x'
+      - name: Run send_mail.py script
         run: |
-            cd utils
-            node sendMail.js
+          cd utils
+          pip install boto3
+          python send_mail.py
         env:
-          CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
-          TENANT_ID: ${{ secrets.TENANT_ID }}
-          
+          RECIPIENT_EMAIL: ${{ needs.get_user_email.outputs.email }}
+          EMAIL_SUBJECT: "On-Demand Environment Creation"
+          EMAIL_BODY: ${{ needs.prepare_mail.outputs.body }}
